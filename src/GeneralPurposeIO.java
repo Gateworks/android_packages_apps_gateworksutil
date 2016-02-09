@@ -25,14 +25,34 @@ import android.os.SystemProperties;
 public class GeneralPurposeIO {
     public enum Direction {OUT, IN}
 
+
+    /**
+     * Gets the Android System property of the given GPIO name.
+     * Equivalent to a <code>getprop hw.gpio.name</code> command.
+     *
+     * @param name    The name assigned to the GPIO of interest
+     * @return        A String containing the path to the sysfs directory for the GPIO
+     */
     public static String getHwProp(String name) {
         return SystemProperties.get("hw.gpio." + name);
     }
 
+    /**
+     * Gets the current value read by the GPIO.
+     *
+     * @param number    The sysfs number of the GPIO
+     * @return          The value of the GPIO
+     */
     public static int getGpioValue(int number) {
         return Integer.parseInt(readStringFromFile("/sys/class/gpio/gpio" + number + "/value"));
     }
 
+    /**
+     * Gets the current value read by the GPIO.
+     *
+     * @param name      The assigned name of the GPIO
+     * @return          The value of the GPIO
+     */
     public static int getGpioValue(String name) {
         String sysfsPath = getHwProp(name);
         int resolvedNumber = Integer.parseInt(sysfsPath
@@ -41,10 +61,22 @@ public class GeneralPurposeIO {
         return getGpioValue(resolvedNumber);
     }
 
+    /**
+     * Sets a logical 1 or 0 to be outputted by the GPIO.
+     *
+     * @param number    The sysfs number of the GPIO
+     * @param value     The logical level to set
+     */
     public static void setGpioValue(int number, int value) {
         writeStringToFile("/sys/class/gpio/gpio" + number + "/value", value == 0 ? "0" : "1");
     }
 
+    /**
+     * Sets a logical 1 or 0 to be outputted by the GPIO.
+     *
+     * @param name      The assigned name of the GPIO
+     * @param value     The logical level to set
+     */
     public static void setGpioValue(String name, int value) {
         String sysfsPath = getHwProp(name);
         int resolvedNumber = Integer.parseInt(sysfsPath
@@ -53,10 +85,23 @@ public class GeneralPurposeIO {
         setGpioValue(resolvedNumber, value);
     }
 
+    /**
+     * Gets the current direction setting of the GPIO.
+     *
+     * @param number    The sysfs number of the GPIO
+     * @return          A Direction enum of value IN or OUT
+     */
     public static Direction getGpioDirection(int number) {
         return readStringFromFile("/sys/class/gpio/gpio" + number + "/direction")
                 .equals("in") ? Direction.IN : Direction.OUT;
     }
+
+    /**
+     * Gets the current direction setting of the GPIO.
+     *
+     * @param name      The assigned name of the GPIO
+     * @return          A Direction enum of value IN or OUT
+     */
     public static Direction getGpioDirection(String name) {
         String sysfsPath = getHwProp(name);
         int resolvedNumber = Integer.parseInt(sysfsPath
@@ -65,11 +110,23 @@ public class GeneralPurposeIO {
         return getGpioDirection(resolvedNumber);
     }
 
+    /**
+     * Sets the new direction setting of the GPIO.
+     *
+     * @param number        The sysfs number of the GPIO
+     * @param direction     A Direction enum of value IN or OUT that will be set
+     */
     public static void setGpioDirection(int number, Direction direction) {
         writeStringToFile("/sys/class/gpio/gpio" + number + "/direction",
                 direction.toString().toLowerCase());
     }
 
+    /**
+     * Sets the new direction setting of the GPIO.
+     *
+     * @param name          The assigned name of the GPIO
+     * @param direction     A Direction enum of value IN or OUT that will be set
+     */
     public static void setGpioDirection(String name, Direction direction) {
         String sysfsPath = getHwProp(name);
         int resolvedNumber = Integer.parseInt(sysfsPath
@@ -78,6 +135,13 @@ public class GeneralPurposeIO {
         setGpioDirection(resolvedNumber, direction);
     }
 
+    /**
+     * Configures direction and value of the GPIO.
+     *
+     * @param name          The assigned name of the GPIO
+     * @param direction     A Direction enum of value IN or OUT that will be set
+     * @param value         The logical level to set
+     */
     public static void setGpio(String name, Direction direction, int value) {
         String sysfsPath = getHwProp(name);
         int resolvedNumber = Integer.parseInt(sysfsPath
@@ -86,6 +150,13 @@ public class GeneralPurposeIO {
         setGpio(resolvedNumber, direction, value);
     }
 
+    /**
+     * Configures direction and value of the GPIO.
+     *
+     * @param number        The sysfs number of the GPIO
+     * @param direction     A Direction enum of value IN or OUT that will be set
+     * @param value         The logical level to set
+     */
     public static void setGpio(int number, Direction direction, int value) {
         setGpioDirection(number, direction);
         setGpioValue(number, value);

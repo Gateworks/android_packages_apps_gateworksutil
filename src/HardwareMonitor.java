@@ -22,12 +22,23 @@ import java.io.IOException;
 import android.os.SystemProperties;
 
 public class HardwareMonitor {
-
-
+    /**
+     * Gets the Android System property of the given HWMON name.
+     * Equivalent to a <code>getprop hw.hwmon.name</code> command.
+     *
+     * @param name    The name assigned to the HWMON of interest
+     * @return        A String containing the path to the sysfs value node for the HWMON
+     */
     public static String getHwProp(String name) {
         return SystemProperties.get("hw.hwmon." + name);
     }
 
+    /**
+     * Gets the current value read by the HWMON.
+     *
+     * @param name      The name assigned to the HWMON of interest
+     * @return          The value of the HWMON in millivolts or degrees Celcius
+     */
     public static int getHwmonValue(String name) {
         return Integer.parseInt(readStringFromFile(getHwProp(name)));
     }

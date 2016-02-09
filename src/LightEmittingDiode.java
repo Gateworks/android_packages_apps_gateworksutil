@@ -25,30 +25,71 @@ import java.util.List;
 import android.os.SystemProperties;
 
 public class LightEmittingDiode {
+    /**
+     * Gets the Android System property of the given LED name.
+     * Equivalent to a <code>getprop hw.LED.name</code> command.
+     *
+     * @param name    The name assigned to the LED of interest
+     * @return        A String containing the path to the sysfs directory for the LED
+     */
     public static String getHwProp(String name) {
         return SystemProperties.get("hw.led." + name);
     }
 
+    /**
+     * Gets the available trigger modes offered by the driver of the LED.
+     *
+     * @param name      The name assigned to the LED of interest
+     * @return          The triggers of the LED including the currently selected
+     */
     public static List<String> getAllLedTriggers(String name) {
         String triggers = readStringFromFile(getHwProp(name) + "trigger");
 
         return Arrays.asList(triggers.replace("[", "").replace("]", "").split(" "));
     }
 
+    /**
+     * Sets the new on/off value of the LED. Note that setting the LED to off will clear
+     * any set trigger.
+     *
+     * @param name      The name assigned to the LED of interest
+     * @param on        The new setting of the LED (true for on, false for off)
+     */
     public static void setLedValue(String name, boolean on) {
         writeStringToFile(getHwProp(name) + "brightness", on ? "1" : "0");
     }
 
+    /**
+     * Gets the current on/off value read by the LED.
+     *
+     * @param name      The name assigned to the LED of interest
+     * @return          The current setting of the LED (true for on, false for off)
+     */
     public static boolean getLedValue(String name) {
         return !readStringFromFile(getHwProp(name) + "brightness").equals("0");
     }
 
+    /**
+     * Gets the current trigger mode being used by the LED.
+     *
+     * @param name      The name assigned to the LED of interest
+     * @return          The name of the LED trigger
+     */
     public static String getLedTrigger(String name) {
         String triggerString = readStringFromFile(getHwProp(name) + "trigger");
 
         return  triggerString.substring(triggerString.indexOf('[') + 1, triggerString.indexOf(']'));
     }
 
+    /**
+     * Sets the new trigger to be used by the LED. Setting a trigger that is not
+     * contained in the list of triggers returned by getAllLedTriggers will throw
+     * a system warning and the trigger will not change.
+     *
+     * @param name      The name assigned to the LED of interest
+     * @param trigger   The name of the new trigger to be assigned
+     * @see GateworksUtil.LightEmittingDiode#getAllLedTriggers(String)
+     */
     public static void setLedTrigger(String name, String trigger) {
         writeStringToFile(getHwProp(name) + "trigger", trigger);
     }
